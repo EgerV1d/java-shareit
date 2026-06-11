@@ -17,6 +17,6 @@ public class ItemDto {
     @NotBlank(message = "Описание не может быть пустым")
     private String description;
 
-    @NotNull@NotNull(message = "Статус доступности должен быть указан")
+    @NotNull(message = "Статус доступности должен быть указан")
     private Boolean available;
 }

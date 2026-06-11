@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.AccessException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
@@ -43,13 +44,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto update(Long itemId, Long ownerId, ItemDto itemDto) {
+    public ItemDto update(Long itemId, Long ownerId, ItemDto itemDto) throws AccessException {
         checkUserExists(ownerId);
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
 
         if (!item.getOwner().equals(ownerId)) {
-            throw new RuntimeException("Редактировать вещь может только владелец");
+            throw new AccessException("Редактировать вещь может только владелец");
         }
 
         if (itemDto.getName() != null && !itemDto.getName().isBlank()) {

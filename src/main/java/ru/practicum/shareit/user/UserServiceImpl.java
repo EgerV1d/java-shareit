@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DuplicateEmailException;
+import ru.practicum.shareit.exception.NoEmailException;
 import ru.practicum.shareit.exception.NotFoundException;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto create(UserDto userDto) {
         if (userDto.getEmail() == null || userDto.getEmail().isBlank()) {
-            throw new RuntimeException("Email не может быть пустым");
+            throw new NoEmailException("Email не может быть пустым");
         }
 
         if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
@@ -54,9 +55,8 @@ public class UserServiceImpl implements UserService {
         }
 
         if (userDto.getEmail() != null && !userDto.getEmail().isBlank()) {
-            if (!user.getEmail().equals(userDto.getEmail())
-                    && userRepository.findByEmail(userDto.getEmail()).isPresent()) {
-                throw new RuntimeException("Пользователь с таким email уже существует");
+            if (userRepository.existsDuplicateWithEmail(userDto.getEmail(), id)) {
+                throw new DuplicateEmailException("Пользователь с таким email уже существует");
             }
             user.setEmail(userDto.getEmail());
         }

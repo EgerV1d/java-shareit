@@ -42,4 +42,10 @@ public class UserRepository {
     public boolean existsById(Long id) {
         return users.containsKey(id);
     }
+
+    public boolean existsDuplicateWithEmail(String email, long currentUserId) {
+        return users.values().stream()
+                .filter(user -> !user.getId().equals(currentUserId))
+                .anyMatch(user -> user.getEmail().equals(email));
+    }
 }

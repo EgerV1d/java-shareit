@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exception.AccessException;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.List;
@@ -38,7 +39,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ItemDto update(@PathVariable Long itemId,
                           @RequestHeader("X-Sharer-User-Id") Long ownerId,
-                          @RequestBody ItemDto itemDto) {
+                          @RequestBody ItemDto itemDto) throws AccessException {
         return itemService.update(itemId,ownerId, itemDto);
     }
 

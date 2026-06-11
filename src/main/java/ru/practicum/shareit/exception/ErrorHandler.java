@@ -18,4 +18,10 @@ public class ErrorHandler {
     public ErrorResponse handleDuplicateEmail(DuplicateEmailException e) {
         return new ErrorResponse(e.getMessage());
     }
+
+    @ExceptionHandler(AccessException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleAccess(AccessException e) {
+        return new ErrorResponse(e.getMessage());
+    }
 }
