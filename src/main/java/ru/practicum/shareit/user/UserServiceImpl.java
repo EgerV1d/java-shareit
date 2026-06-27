@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
         }
 
         if (userDto.getEmail() != null && !userDto.getEmail().isBlank()) {
-            if (userRepository.existsDuplicateWithEmail(userDto.getEmail(), id)) {
+            if (userRepository.existsByEmail(userDto.getEmail())) {
                 throw new DuplicateEmailException("Пользователь с таким email уже существует");
             }
             user.setEmail(userDto.getEmail());

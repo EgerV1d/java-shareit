@@ -4,7 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.AccessException;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.List;
@@ -39,12 +40,20 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ItemDto update(@PathVariable Long itemId,
                           @RequestHeader("X-Sharer-User-Id") Long ownerId,
-                          @RequestBody ItemDto itemDto) throws AccessException {
+                          @RequestBody ItemDto itemDto) {
         return itemService.update(itemId,ownerId, itemDto);
     }
 
     @GetMapping("/search")
     public List<ItemDto> search(@RequestParam String text) {
         return itemService.search(text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CommentDto addComment(@PathVariable Long itemId,
+                                 @RequestHeader("X-Sharer-User-Id") Long userId,
+                                 @Valid @RequestBody CommentRequestDto commentDto) {
+        return itemService.addComment(itemId, userId, commentDto.getText());
     }
 }
