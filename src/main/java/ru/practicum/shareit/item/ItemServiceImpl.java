@@ -9,7 +9,7 @@ import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exception.AccessException;
-import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.CommentNotAllowedException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -36,7 +36,6 @@ public class ItemServiceImpl implements ItemService {
     private final BookingMapper bookingMapper;
 
     @Override
-    @Transactional(readOnly = true)
     public List<ItemDto> findAllByOwner(Long ownerId) {
         checkUserExists(ownerId);
         List<Item> items = itemRepository.findByOwnerId(ownerId);
@@ -46,7 +45,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public ItemDto findById(Long id, Long userId) {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
@@ -98,7 +96,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<ItemDto> search(String text) {
         if (text == null || text.isBlank()) {
             return new ArrayList<>();
@@ -122,7 +119,7 @@ public class ItemServiceImpl implements ItemService {
 
         boolean hasBooked = bookingRepository.existsApprovedBookingByUser(itemId, userId, LocalDateTime.now());
         if (!hasBooked) {
-            throw new BadRequestException("Пользователь не брал эту вещь в аренду");
+            throw new CommentNotAllowedException("Пользователь не брал эту вещь в аренду");
         }
 
         Comment comment = commentMapper.toEntity(text, item, author);
