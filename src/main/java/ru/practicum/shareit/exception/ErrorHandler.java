@@ -24,4 +24,34 @@ public class ErrorHandler {
     public ErrorResponse handleAccess(AccessException e) {
         return new ErrorResponse(e.getMessage());
     }
+
+    @ExceptionHandler(BookingNotAvailableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBookingNotAvailable(BookingNotAvailableException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler(InvalidBookingDatesException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInvalidBookingDates(InvalidBookingDatesException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler(BookingStatusException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)  // или CONFLICT (409), если статус конфликтует
+    public ErrorResponse handleBookingStatus(BookingStatusException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler(UnknownBookingStateException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUnknownBookingState(UnknownBookingStateException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler(CommentNotAllowedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleCommentNotAllowed(CommentNotAllowedException e) {
+        return new ErrorResponse(e.getMessage());
+    }
 }

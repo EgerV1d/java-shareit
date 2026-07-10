@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.User;
 
 @Component
 public class ItemMapper {
@@ -18,7 +19,7 @@ public class ItemMapper {
         return dto;
     }
 
-    public Item toEntity(ItemDto dto, Long ownerId) {
+    public Item toEntity(ItemDto dto, User owner) {
         if (dto == null) {
             return null;
         }
@@ -27,7 +28,7 @@ public class ItemMapper {
         item.setName(dto.getName());
         item.setDescription(dto.getDescription());
         item.setAvailable(dto.getAvailable());
-        item.setOwner(ownerId);
+        item.setOwner(owner);
         return item;
     }
 }
