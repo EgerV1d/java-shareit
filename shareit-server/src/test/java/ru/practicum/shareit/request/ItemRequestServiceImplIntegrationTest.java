@@ -67,6 +67,12 @@ public class ItemRequestServiceImplIntegrationTest {
         request1.setDescription("Request 1");
         requestService.create(testUser.getId(), request1);
 
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
         CreateItemRequestDto request2 = new CreateItemRequestDto();
         request2.setDescription("Request 2");
         requestService.create(testUser.getId(), request2);
