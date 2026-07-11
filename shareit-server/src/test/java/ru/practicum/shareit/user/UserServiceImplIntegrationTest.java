@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.DuplicateEmailException;
+import ru.practicum.shareit.exception.NoEmailException;
 import ru.practicum.shareit.exception.NotFoundException;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -99,5 +102,80 @@ public class UserServiceImplIntegrationTest {
         userService.delete(created.getId());
 
         assertThrows(NotFoundException.class, () -> userService.findById(created.getId()));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenEmailIsBlank() {
+        UserDto userDto = new UserDto();
+        userDto.setName("Test User");
+        userDto.setEmail("");
+
+        assertThrows(NoEmailException.class,
+                () -> userService.create(userDto));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenEmailIsNull() {
+        UserDto userDto = new UserDto();
+        userDto.setName("Test User");
+        userDto.setEmail(null);
+
+        assertThrows(NoEmailException.class,
+                () -> userService.create(userDto));
+    }
+
+    @Test
+    void shouldUpdateOnlyName() {
+        UserDto userDto = new UserDto();
+        userDto.setName("Old Name");
+        userDto.setEmail("test@example.com");
+        UserDto created = userService.create(userDto);
+
+        UserDto update = new UserDto();
+        update.setName("New Name");
+
+        UserDto result = userService.update(created.getId(), update);
+
+        assertThat(result.getName()).isEqualTo("New Name");
+        assertThat(result.getEmail()).isEqualTo("test@example.com");
+    }
+
+    @Test
+    void shouldUpdateOnlyEmail() {
+        UserDto userDto = new UserDto();
+        userDto.setName("Test User");
+        userDto.setEmail("old@example.com");
+        UserDto created = userService.create(userDto);
+
+        UserDto update = new UserDto();
+        update.setEmail("new@example.com");
+
+        UserDto result = userService.update(created.getId(), update);
+
+        assertThat(result.getName()).isEqualTo("Test User");
+        assertThat(result.getEmail()).isEqualTo("new@example.com");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDeleteNotFound() {
+        assertThrows(NotFoundException.class,
+                () -> userService.delete(999L));
+    }
+
+    @Test
+    void shouldFindAllUsers() {
+        UserDto user1 = new UserDto();
+        user1.setName("User 1");
+        user1.setEmail("user1@example.com");
+        userService.create(user1);
+
+        UserDto user2 = new UserDto();
+        user2.setName("User 2");
+        user2.setEmail("user2@example.com");
+        userService.create(user2);
+
+        List<UserDto> users = userService.findAll();
+
+        assertThat(users).hasSizeGreaterThanOrEqualTo(2);
     }
 }

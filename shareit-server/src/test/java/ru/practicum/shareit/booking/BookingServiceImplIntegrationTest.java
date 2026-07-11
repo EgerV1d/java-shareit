@@ -218,6 +218,159 @@ public class BookingServiceImplIntegrationTest {
                 () -> bookingService.create(booker.getId(), request));
     }
 
+    @Test
+    void shouldFindAllByBookerWithWaitingState() {
+        UserDto owner = createUser("Owner", "owner@example.com");
+        UserDto booker = createUser("Booker", "booker@example.com");
+        ItemDto item = createItem(owner.getId(), "Test Item", "Test Description", true);
+
+        BookingRequestDto request = new BookingRequestDto();
+        request.setItemId(item.getId());
+        request.setStart(LocalDateTime.now().plusDays(1));
+        request.setEnd(LocalDateTime.now().plusDays(2));
+        bookingService.create(booker.getId(), request);
+
+        List<BookingDto> bookings = bookingService.findAllByBooker(booker.getId(), BookingState.WAITING);
+        assertThat(bookings).isNotEmpty();
+        assertThat(bookings.get(0).getStatus()).isEqualTo(BookingStatus.WAITING);
+    }
+
+    @Test
+    void shouldFindAllByBookerWithRejectedState() {
+        UserDto owner = createUser("Owner", "owner@example.com");
+        UserDto booker = createUser("Booker", "booker@example.com");
+        ItemDto item = createItem(owner.getId(), "Test Item", "Test Description", true);
+
+        BookingRequestDto request = new BookingRequestDto();
+        request.setItemId(item.getId());
+        request.setStart(LocalDateTime.now().plusDays(1));
+        request.setEnd(LocalDateTime.now().plusDays(2));
+        BookingDto created = bookingService.create(booker.getId(), request);
+        bookingService.approve(created.getId(), owner.getId(), false);
+
+        List<BookingDto> bookings = bookingService.findAllByBooker(booker.getId(), BookingState.REJECTED);
+        assertThat(bookings).isNotEmpty();
+        assertThat(bookings.get(0).getStatus()).isEqualTo(BookingStatus.REJECTED);
+    }
+
+    @Test
+    void shouldFindAllByBookerWithPastState() {
+        UserDto owner = createUser("Owner", "owner@example.com");
+        UserDto booker = createUser("Booker", "booker@example.com");
+        ItemDto item = createItem(owner.getId(), "Test Item", "Test Description", true);
+
+        BookingRequestDto request = new BookingRequestDto();
+        request.setItemId(item.getId());
+        request.setStart(LocalDateTime.now().plusDays(1));
+        request.setEnd(LocalDateTime.now().plusDays(2));
+        BookingDto created = bookingService.create(booker.getId(), request);
+        bookingService.approve(created.getId(), owner.getId(), true);
+
+        List<BookingDto> bookings = bookingService.findAllByOwner(owner.getId(), BookingState.ALL);
+        assertThat(bookings).isNotEmpty();
+    }
+
+    @Test
+    void shouldFindAllByBookerWithFutureState() {
+        UserDto owner = createUser("Owner", "owner@example.com");
+        UserDto booker = createUser("Booker", "booker@example.com");
+        ItemDto item = createItem(owner.getId(), "Test Item", "Test Description", true);
+
+        BookingRequestDto request = new BookingRequestDto();
+        request.setItemId(item.getId());
+        request.setStart(LocalDateTime.now().plusDays(1));
+        request.setEnd(LocalDateTime.now().plusDays(2));
+        bookingService.create(booker.getId(), request);
+
+        List<BookingDto> bookings = bookingService.findAllByBooker(booker.getId(), BookingState.FUTURE);
+        assertThat(bookings).isNotEmpty();
+    }
+
+    @Test
+    void shouldFindAllByOwnerWithWaitingState() {
+        UserDto owner = createUser("Owner", "owner@example.com");
+        UserDto booker = createUser("Booker", "booker@example.com");
+        ItemDto item = createItem(owner.getId(), "Test Item", "Test Description", true);
+
+        BookingRequestDto request = new BookingRequestDto();
+        request.setItemId(item.getId());
+        request.setStart(LocalDateTime.now().plusDays(1));
+        request.setEnd(LocalDateTime.now().plusDays(2));
+        bookingService.create(booker.getId(), request);
+
+        List<BookingDto> bookings = bookingService.findAllByOwner(owner.getId(), BookingState.WAITING);
+        assertThat(bookings).isNotEmpty();
+        assertThat(bookings.get(0).getStatus()).isEqualTo(BookingStatus.WAITING);
+    }
+
+    @Test
+    void shouldFindAllByOwnerWithRejectedState() {
+        UserDto owner = createUser("Owner", "owner@example.com");
+        UserDto booker = createUser("Booker", "booker@example.com");
+        ItemDto item = createItem(owner.getId(), "Test Item", "Test Description", true);
+
+        BookingRequestDto request = new BookingRequestDto();
+        request.setItemId(item.getId());
+        request.setStart(LocalDateTime.now().plusDays(1));
+        request.setEnd(LocalDateTime.now().plusDays(2));
+        BookingDto created = bookingService.create(booker.getId(), request);
+        bookingService.approve(created.getId(), owner.getId(), false);
+
+        List<BookingDto> bookings = bookingService.findAllByOwner(owner.getId(), BookingState.REJECTED);
+        assertThat(bookings).isNotEmpty();
+        assertThat(bookings.get(0).getStatus()).isEqualTo(BookingStatus.REJECTED);
+    }
+
+    @Test
+    void shouldFindAllByOwnerWithCurrentState() {
+        UserDto owner = createUser("Owner", "owner@example.com");
+        UserDto booker = createUser("Booker", "booker@example.com");
+        ItemDto item = createItem(owner.getId(), "Test Item", "Test Description", true);
+
+        BookingRequestDto request = new BookingRequestDto();
+        request.setItemId(item.getId());
+        request.setStart(LocalDateTime.now().plusHours(1));
+        request.setEnd(LocalDateTime.now().plusHours(2));
+        BookingDto created = bookingService.create(booker.getId(), request);
+        bookingService.approve(created.getId(), owner.getId(), true);
+
+        List<BookingDto> bookings = bookingService.findAllByOwner(owner.getId(), BookingState.ALL);
+        assertThat(bookings).isNotEmpty();
+    }
+
+    @Test
+    void shouldFindAllByOwnerWithPastState() {
+        UserDto owner = createUser("Owner", "owner@example.com");
+        UserDto booker = createUser("Booker", "booker@example.com");
+        ItemDto item = createItem(owner.getId(), "Test Item", "Test Description", true);
+
+        BookingRequestDto request = new BookingRequestDto();
+        request.setItemId(item.getId());
+        request.setStart(LocalDateTime.now().plusDays(1));
+        request.setEnd(LocalDateTime.now().plusDays(2));
+        BookingDto created = bookingService.create(booker.getId(), request);
+        bookingService.approve(created.getId(), owner.getId(), true);
+
+        List<BookingDto> bookings = bookingService.findAllByOwner(owner.getId(), BookingState.ALL);
+        assertThat(bookings).isNotEmpty();
+    }
+
+    @Test
+    void shouldFindAllByOwnerWithFutureState() {
+        UserDto owner = createUser("Owner", "owner@example.com");
+        UserDto booker = createUser("Booker", "booker@example.com");
+        ItemDto item = createItem(owner.getId(), "Test Item", "Test Description", true);
+
+        BookingRequestDto request = new BookingRequestDto();
+        request.setItemId(item.getId());
+        request.setStart(LocalDateTime.now().plusDays(1));
+        request.setEnd(LocalDateTime.now().plusDays(2));
+        bookingService.create(booker.getId(), request);
+
+        List<BookingDto> bookings = bookingService.findAllByOwner(owner.getId(), BookingState.FUTURE);
+        assertThat(bookings).isNotEmpty();
+    }
+
     private UserDto createUser(String name, String email) {
         UserDto userDto = new UserDto();
         userDto.setName(name);

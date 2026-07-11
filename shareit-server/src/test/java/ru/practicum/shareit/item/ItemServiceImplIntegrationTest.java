@@ -202,4 +202,86 @@ public class ItemServiceImplIntegrationTest {
         assertThrows(NotFoundException.class,
                 () -> itemService.findAllByOwner(999L));
     }
+
+    @Test
+    void shouldUpdateItemOnlyName() {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Old Name");
+        itemDto.setDescription("Test Description");
+        itemDto.setAvailable(true);
+        ItemDto createdItem = itemService.create(testOwner.getId(), itemDto);
+
+        ItemDto update = new ItemDto();
+        update.setName("New Name");
+
+        ItemDto result = itemService.update(createdItem.getId(), testOwner.getId(), update);
+
+        assertThat(result.getName()).isEqualTo("New Name");
+        assertThat(result.getDescription()).isEqualTo("Test Description");
+        assertThat(result.getAvailable()).isTrue();
+    }
+
+    @Test
+    void shouldUpdateItemOnlyDescription() {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Test Item");
+        itemDto.setDescription("Old Description");
+        itemDto.setAvailable(true);
+        ItemDto createdItem = itemService.create(testOwner.getId(), itemDto);
+
+        ItemDto update = new ItemDto();
+        update.setDescription("New Description");
+
+        ItemDto result = itemService.update(createdItem.getId(), testOwner.getId(), update);
+
+        assertThat(result.getName()).isEqualTo("Test Item");
+        assertThat(result.getDescription()).isEqualTo("New Description");
+        assertThat(result.getAvailable()).isTrue();
+    }
+
+    @Test
+    void shouldUpdateItemOnlyAvailable() {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Test Item");
+        itemDto.setDescription("Test Description");
+        itemDto.setAvailable(true);
+        ItemDto createdItem = itemService.create(testOwner.getId(), itemDto);
+
+        ItemDto update = new ItemDto();
+        update.setAvailable(false);
+
+        ItemDto result = itemService.update(createdItem.getId(), testOwner.getId(), update);
+
+        assertThat(result.getName()).isEqualTo("Test Item");
+        assertThat(result.getDescription()).isEqualTo("Test Description");
+        assertThat(result.getAvailable()).isFalse();
+    }
+
+    @Test
+    void shouldFindItemByIdAsUser() {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Test Item");
+        itemDto.setDescription("Test Description");
+        itemDto.setAvailable(true);
+        ItemDto createdItem = itemService.create(testOwner.getId(), itemDto);
+
+        ItemDto found = itemService.findById(createdItem.getId(), testUser.getId());
+
+        assertThat(found).isNotNull();
+        assertThat(found.getId()).isEqualTo(createdItem.getId());
+    }
+
+    @Test
+    void shouldFindItemByIdWithoutUserId() {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Test Item");
+        itemDto.setDescription("Test Description");
+        itemDto.setAvailable(true);
+        ItemDto createdItem = itemService.create(testOwner.getId(), itemDto);
+
+        ItemDto found = itemService.findById(createdItem.getId(), null);
+
+        assertThat(found).isNotNull();
+        assertThat(found.getId()).isEqualTo(createdItem.getId());
+    }
 }
