@@ -15,6 +15,8 @@ import ru.practicum.shareit.user.UserDto;
 import ru.practicum.shareit.user.UserService;
 
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -147,5 +149,57 @@ public class ItemServiceImplIntegrationTest {
 
         assertThrows(CommentNotAllowedException.class, () ->
                 itemService.addComment(createdItem.getId(), testUser.getId(), "Great item!"));
+    }
+
+    @Test
+    void shouldSearchItemsByText() {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Drill");
+        itemDto.setDescription("Powerful drill");
+        itemDto.setAvailable(true);
+        itemService.create(testOwner.getId(), itemDto);
+
+        List<ItemDto> results = itemService.search("drill");
+
+        assertThat(results).isNotEmpty();
+        assertThat(results.get(0).getName()).contains("Drill");
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenSearchTextIsBlank() {
+        List<ItemDto> results = itemService.search("");
+        assertThat(results).isEmpty();
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenSearchTextIsNull() {
+        List<ItemDto> results = itemService.search(null);
+        assertThat(results).isEmpty();
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenNoMatches() {
+        List<ItemDto> results = itemService.search("nonexistent");
+        assertThat(results).isEmpty();
+    }
+
+    @Test
+    void shouldFindAllByOwner() {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Test Item");
+        itemDto.setDescription("Test Description");
+        itemDto.setAvailable(true);
+        itemService.create(testOwner.getId(), itemDto);
+
+        List<ItemDto> items = itemService.findAllByOwner(testOwner.getId());
+
+        assertThat(items).isNotEmpty();
+        assertThat(items.get(0).getName()).isEqualTo("Test Item");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenFindByOwnerNotFound() {
+        assertThrows(NotFoundException.class,
+                () -> itemService.findAllByOwner(999L));
     }
 }

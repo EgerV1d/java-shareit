@@ -7,6 +7,7 @@ import ru.practicum.shareit.request.dto.ItemResponseDto;
 import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -33,18 +34,23 @@ public class ItemRequestMapper {
     }
 
     public ItemRequestDto toDtoWithItems(ItemRequest request, List<Item> items) {
+        if (request == null) {
+            return null;
+        }
         ItemRequestDto dto = toDto(request);
-        if (items != null) {
-            List<ItemResponseDto> responseItems = items.stream()
+        List<ItemResponseDto> responseItems = new ArrayList<>();
+
+        if (items != null && !items.isEmpty()) {
+            responseItems = items.stream()
                     .map(item -> ItemResponseDto.builder()
                             .id(item.getId())
                             .name(item.getName())
                             .ownerId(item.getOwner().getId())
                             .build())
                     .toList();
-            dto.setItems(responseItems);
         }
 
+        dto.setItems(responseItems);
         return dto;
     }
 }

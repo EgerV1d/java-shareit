@@ -7,10 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingState;
-import ru.practicum.shareit.exception.AccessException;
-import ru.practicum.shareit.exception.BookingNotAvailableException;
-import ru.practicum.shareit.exception.BookingStatusException;
-import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.UserService;
@@ -189,6 +186,51 @@ public class BookingServiceImplIntegrationTest {
         List<BookingDto> bookings = bookingService.findAllByBooker(booker.getId(), BookingState.ALL);
 
         assertThat(bookings).isNotEmpty();
+    }
+
+    @Test
+    void shouldThrowExceptionWhenStartDateInPast() {
+        UserDto owner = createUser("Owner", "owner@example.com");
+        UserDto booker = createUser("Booker", "booker@example.com");
+        ItemDto item = createItem(owner.getId(), "Test Item", "Test Description", true);
+
+        BookingRequestDto request = new BookingRequestDto();
+        request.setItemId(item.getId());
+        request.setStart(LocalDateTime.now().minusDays(1));  // дата в прошлом
+        request.setEnd(LocalDateTime.now().plusDays(2));
+
+        assertThrows(InvalidBookingDatesException.class,
+                () -> bookingService.create(booker.getId(), request));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenStartDateEqualsEndDate() {
+        UserDto owner = createUser("Owner", "owner@example.com");
+        UserDto booker = createUser("Booker", "booker@example.com");
+        ItemDto item = createItem(owner.getId(), "Test Item", "Test Description", true);
+
+        BookingRequestDto request = new BookingRequestDto();
+        request.setItemId(item.getId());
+        request.setStart(LocalDateTime.now().plusDays(1));
+        request.setEnd(LocalDateTime.now().plusDays(1));  // равные даты
+
+        assertThrows(InvalidBookingDatesException.class,
+                () -> bookingService.create(booker.getId(), request));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenStartDateAfterEndDate() {
+        UserDto owner = createUser("Owner", "owner@example.com");
+        UserDto booker = createUser("Booker", "booker@example.com");
+        ItemDto item = createItem(owner.getId(), "Test Item", "Test Description", true);
+
+        BookingRequestDto request = new BookingRequestDto();
+        request.setItemId(item.getId());
+        request.setStart(LocalDateTime.now().plusDays(2));
+        request.setEnd(LocalDateTime.now().plusDays(1));  // start после end
+
+        assertThrows(InvalidBookingDatesException.class,
+                () -> bookingService.create(booker.getId(), request));
     }
 
     private UserDto createUser(String name, String email) {
