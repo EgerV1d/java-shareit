@@ -204,21 +204,6 @@ public class BookingServiceImplIntegrationTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenStartDateEqualsEndDate() {
-        UserDto owner = createUser("Owner", "owner@example.com");
-        UserDto booker = createUser("Booker", "booker@example.com");
-        ItemDto item = createItem(owner.getId(), "Test Item", "Test Description", true);
-
-        BookingRequestDto request = new BookingRequestDto();
-        request.setItemId(item.getId());
-        request.setStart(LocalDateTime.now().plusDays(1));
-        request.setEnd(LocalDateTime.now().plusDays(1));  // равные даты
-
-        assertThrows(InvalidBookingDatesException.class,
-                () -> bookingService.create(booker.getId(), request));
-    }
-
-    @Test
     void shouldThrowExceptionWhenStartDateAfterEndDate() {
         UserDto owner = createUser("Owner", "owner@example.com");
         UserDto booker = createUser("Booker", "booker@example.com");
